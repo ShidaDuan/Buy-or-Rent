@@ -106,7 +106,7 @@ def simulate(p: Params) -> Tuple[pd.DataFrame, Dict[str, Any], pd.DataFrame, pd.
     down = max(0.0, p.home_price - p.mortgage_principal)
     if down > p.bank_initial:
         raise ValueError(
-            f"Down payment shortfall: need ${down:,.0f}, but bank has only ${p.bank_initial:,.0f}."
+            f"Down payment shortfall: need ${down:,.0f}, but bank has only${p.bank_initial:,.0f}."
         )
 
     # For summary display
