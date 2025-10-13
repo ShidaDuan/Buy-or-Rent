@@ -29,7 +29,7 @@ class Params:
     expense_annual_growth: float = 0.02
 
     # Bank & investments
-    bank_initial: float = 50000.0
+    bank_initial: float = 500000.0
     bank_annual_rate: float = 0.02
     stock_initial: float = 50000.0
     stock_annual_return: float = 0.07
