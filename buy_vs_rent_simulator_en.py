@@ -106,7 +106,7 @@ def simulate(p: Params) -> Tuple[pd.DataFrame, Dict[str, Any], pd.DataFrame, pd.
     down = max(0.0, p.home_price - p.mortgage_principal)
     if down > p.bank_initial:
         raise ValueError(
-            f"Down payment shortfall: need ${down:,.0f}, but bank has only${p.bank_initial:,.0f}."
+            f"Down payment shortfall: need ${down:,.0f}, but bank has only ${p.bank_initial:,.0f}."
         )
 
     # For summary display
@@ -424,7 +424,19 @@ if run_btn:
         with c4: st.metric("Initial Bank (Rent)", fm(meta["bank_initial_rent"]))
         with c5: st.metric("Starting Net Monthly Income", fm(meta["monthly_net_income_start"]))
 
-        st.subheader("Annual Total Wealth (Buy vs Rent)")
+        # Liquidity warning (MOVED UP)
+        neg_b = int((df_m["buy_net_cashflow"] < 0).sum())
+        neg_r = int((df_m["rent_net_cashflow"] < 0).sum())
+        if neg_b or neg_r:
+            st.warning(f"Negative monthly net cash flow months detected — Buy: {neg_b} months; Rent: {neg_r} months. Mind liquidity risk.")
+
+        # === CHART 1: IMMEDIATE DIFFERENCE ===
+        st.subheader("Annual Wealth Difference (Buy Minus Rent)")
+        st.line_chart(df_y.set_index("year")[ ["diff_buy_minus_rent"] ])
+        st.caption("Positive values favor Buy; negative values favor Rent.")
+
+        # === CHART 2: TOTAL WEALTH TRAJECTORIES ===
+        st.subheader("Total Wealth Trajectories (Buy vs Rent)")
         st.line_chart(df_y.set_index("year")[ ["buy_total", "rent_total"] ])
 
         st.subheader("Investment Balances by Scenario (Annual)")
@@ -454,32 +466,30 @@ if run_btn:
         with tab4:
             st.line_chart(df_m.set_index("month")[ ["stock_contrib"] ])
 
-        # Annual inflow/outflow stacked bars
+        # === CHART 3: ANNUAL FLOW STACKED BARS (IMPROVED) ===
         st.subheader("Annual Asset Inflows/Outflows (Stacked)")
         df_long = df_break.melt(id_vars=["year", "scenario"], var_name="item", value_name="amount")
+        
+        # Define a clear order for the items in the stack
         order_items = [
-            "Net Salary", "Investment Returns", "Principal Repaid", "Home Appreciation",
-            "DCA from Salary", "Living Expenses", "Mortgage Interest", "Property Tax", "Maintenance", "HOA/Insurance", "Rent", "Down Payment"
+            "Net Salary", "Investment Returns", "Principal Repaid", "Home Appreciation", # Inflows/Gains
+            "DCA from Salary", "Living Expenses", "Mortgage Interest", "Property Tax", 
+            "Maintenance", "HOA/Insurance", "Rent", "Down Payment" # Outflows
         ]
+        
         chart = (
             alt.Chart(df_long)
             .mark_bar()
             .encode(
                 x=alt.X("year:O", title="Year"),
-                y=alt.Y("sum(amount):Q", title="Annual Amount ($)"),
+                y=alt.Y("sum(amount):Q", title="Annual Net Flow ($)"),
                 color=alt.Color("item:N", sort=order_items),
                 column=alt.Column("scenario:N", title="", sort=["Buy", "Rent"]),
-                tooltip=["scenario", "year", "item", alt.Tooltip("amount:Q", format=",")]
+                tooltip=["scenario", "year", "item", alt.Tooltip("amount:Q", format="$,.0f")] # <-- IMPROVED CURRENCY FORMAT
             )
-            .properties(height=320)
+            .properties(height=400) # Slightly taller chart
         )
         st.altair_chart(chart, use_container_width=True)
-
-        # Liquidity warning
-        neg_b = int((df_m["buy_net_cashflow"] < 0).sum())
-        neg_r = int((df_m["rent_net_cashflow"] < 0).sum())
-        if neg_b or neg_r:
-            st.warning(f"Negative monthly net cash flow months detected — Buy: {neg_b} months; Rent: {neg_r} months. Mind liquidity risk.")
 
         st.subheader("Download Data")
         st.download_button("Download Annual CSV", data=df_y.to_csv(index=False), file_name="buy_vs_rent_yearly.csv", mime="text/csv")
