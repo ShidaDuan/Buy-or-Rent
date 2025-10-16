@@ -348,13 +348,13 @@ st.title("Buy vs Rent: 10-Year Household Wealth Simulator (Dual Income)")
 
 with st.sidebar:
     st.header("Income & Taxes")
-    annual_salary = st.number_input("Annual Combined Salary ($)", value=240000, step=1000)
+    annual_salary = st.number_input("Annual Combined Salary ($)", value=200000, step=1000)
     ca_tax_rate = st.number_input("Effective Tax Rate (%)", value=9.0, step=0.1) / 100.0
     salary_growth = st.number_input("Salary Annual Growth (%)", value=3.0, step=0.1) / 100.0
     expense_growth = st.number_input("Expense Annual Growth (%)", value=2.0, step=0.1) / 100.0
 
     st.header("Cash & Investments")
-    bank_initial = st.number_input("Initial Bank Savings ($)", value=50000, step=1000)
+    bank_initial = st.number_input("Initial Bank Savings ($)", value=500000, step=1000)
     bank_rate = st.number_input("Bank Annual Interest (%)", value=2.0, step=0.1) / 100.0
     stock_initial = st.number_input("Initial Stock Balance ($)", value=50000, step=1000)
     stock_return = st.number_input("Stock Annual Return (%)", value=7.0, step=0.1) / 100.0
