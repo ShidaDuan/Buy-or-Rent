@@ -23,7 +23,7 @@ import altair as alt
 @dataclass
 class Params:
     # Income & tax
-    annual_salary: float = 240000.0
+    annual_salary: float = 200000.0
     ca_tax_rate: float = 0.09
     salary_annual_growth: float = 0.03
     expense_annual_growth: float = 0.02
